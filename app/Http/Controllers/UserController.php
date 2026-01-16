@@ -50,13 +50,19 @@ class UserController extends Controller
 
     //USUARIOS
     //MOSTRAR LISTA DE USUARIOS
-    public function indexView()
+    public function indexView(Request $request)
     {
-        $users = User::select('id', 'name', 'email', 'role', 'created_at')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $search = $request->query('search');
+        $usersQuery = User::select('id', 'name', 'email', 'role', 'created_at')
+            ->orderBy('created_at', 'desc');
 
-        return view('users.index', compact('users'));
+        if ($search) {
+            $usersQuery->where('name', 'like', '%' . $search . '%');
+        }
+
+        $users = $usersQuery->paginate(10)->withQueryString();
+
+        return view('users.index', compact('users', 'search'));
     }
 
     //VER UN USUARIO
