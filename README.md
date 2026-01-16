@@ -87,7 +87,7 @@ npm install
 
 #### 4. Configurar Variables de Entorno
 ```bash
-# Copiar el archivo de ejemplo
+# Copiar el archivo de variables de entorno
 cp .env.example .env
 
 # Generar la clave de aplicación
@@ -191,19 +191,6 @@ Verifica las credenciales en el archivo `.env`
 ### Error: "Vite manifest not found"
 ```bash
 npm install
-npm run build
-```
-
-### Error: "Class 'Tymon\JWTAuth\...' not found"
-```bash
-composer require tymon/jwt-auth
-php artisan jwt:secret
-```
-
-### Los estilos no se aplican
-```bash
-npm run dev
-# o
 npm run build
 ```
 
