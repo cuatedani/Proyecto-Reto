@@ -111,16 +111,20 @@ DB_PASSWORD=tu_contraseña
 **Opción A: Importar el archivo SQL (Recomendado)**
 ```bash
 # Crear la base de datos
-mysql -u root -p -e "CREATE DATABASE nombre_de_tu_base_de_datos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p -e "CREATE DATABASE db_reto CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # Importar el archivo SQL
-mysql -u root -p nombre_de_tu_base_de_datos < database/db_reto.sql
+mysql -u root -p db_reto < database/db_reto.sql
+
+# O utilizar una herramienta como un wizard o un manejador de base de datos
 ```
 
 **Opción B: Usar Migraciones de Laravel**
+con esta opcion 
 ```bash
 # Ejecutar migraciones
 php artisan migrate
+php artisan db:seed
 ```
 
 #### 7. Compilar Assets
