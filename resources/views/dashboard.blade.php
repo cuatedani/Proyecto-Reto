@@ -9,7 +9,8 @@
     </h2>
 
     <p class="text-gray-600 mb-6">
-        Nos alegra verte de nuevo en el sistema.
+        Nos alegra verte de nuevo en el sistema. <br>
+        Tu funcion es {{ auth()->user()->role }}
     </p>
 
     <h3 class="text-2xl font-semibold text-gray-800 mb-4">
