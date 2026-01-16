@@ -4,17 +4,19 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class IsAdmin
 {
     public function handle(Request $request, Closure $next)
     {
-        $user = auth('api')->user();
+        $user = Auth::user(); // guard web por defecto
 
-        if($user && $user->role === 'admin'){
+        if ($user && $user->role === 'admin') {
             return $next($request);
-        }else{
-            return response()->json(['error' => 'No eres administrador'], 403);
         }
+
+        return redirect()->route('dashboard')
+            ->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
     }
 }

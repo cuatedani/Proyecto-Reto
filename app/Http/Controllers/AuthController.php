@@ -5,23 +5,63 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+
+    //MOSTRAR LA VISTA DEL LOGIN
+    public function loginView(){
+        return view('auth.login');
+    }
+
+    //REALIZAR LOGIN
+    public function loginWeb(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:8',
+        ], [
+            'email.required' => 'El correo es obligatorio',
+            'email.email' => 'El correo no es válido',
+            'password.required' => 'La contraseña es obligatoria',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres',
+        ]);
+
+        $credentials = $request->only('email', 'password');
+        $remember = $request->filled('remember');
+
+        if (!Auth::attempt($credentials, $remember)) {
+            return back()
+                ->withErrors(['email' => 'Las credenciales no son correctas'])
+                ->withInput($request->only('email'));
+        }
+
+        $request->session()->regenerate();
+
+        return redirect()->route('dashboard');
+    }
+
+    //MOSTRAR LA VISTA DE REGISTRO
+    public function registerView(){
+        return view('auth.register');
+    }
+
+    //PROCESAR EL REGISTRO
+    public function registerWeb(Request $request)
+    {
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+        ], [
+            'name.required' => 'El nombre es obligatorio',
+            'email.required' => 'El correo es obligatorio',
+            'email.email' => 'El correo no es válido',
+            'email.unique' => 'Este correo ya está registrado',
+            'password.required' => 'La contraseña es obligatoria',
+            'password.confirmed' => 'Las contraseñas no coinciden',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
 
         $user = User::create([
             'name' => $request->name,
@@ -30,48 +70,37 @@ class AuthController extends Controller
             'role' => 'user',
         ]);
 
-        $token = JWTAuth::fromUser($user);
+        Auth::login($user);
 
-        return response()->json([
-            'user' => $user,
-            'token' => $token
-        ], 201);
+        return redirect()->route('dashboard');
     }
 
-    public function login(Request $request)
+    //MOSTRAR LA VISTA DE RECUPERACION DE ACCESO
+    public function recoveryView(){
+        return view('auth.recovery');
+    }
+
+    //PROCESAR LA RECUPERACION DE ACCESO
+    public function recoveryWeb(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:255',
-            'password' => 'required|string|min:8',
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ], [
+            'email.required' => 'El correo es obligatorio',
+            'email.email' => 'El correo no es válido',
+            'email.exists' => 'No existe una cuenta con este correo',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
-        $credentials = $request->only('email', 'password');
-
-        try{
-            if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'Credenciales inválidas'], 401);
-            }
-
-            return response()->json(['token' => $token], 200);
-
-        }catch(JWTException $e){
-            return response()->json(['error' => 'No se pudo crear el token'], 500);
-        }
+        return back()->with('status', 'Te hemos enviado instrucciones a tu correo');
     }
 
-    public function getUser()
+    //CERRAR SESION EN EL SITIO
+    public function logoutWeb(Request $request)
     {
-        $user = Auth::user();
-        return response()->json($user, 200);
-    }
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-    public function logout()
-    {
-        JWTAuth::invalidate(JWTAuth::getToken());
-        return response()->json(['message' => 'Sesión cerrada exitosamente']);
+        return redirect()->route('welcome');
     }
 }

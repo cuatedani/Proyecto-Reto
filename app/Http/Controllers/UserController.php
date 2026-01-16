@@ -4,75 +4,167 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function index()
+    //VISTAS
+
+    //PERFIL
+    //MOSTRAR VISTA VER PERFIL
+    public function profileView(Request $request){
+        $user = $request->user();
+        return view('profile.show', compact('user'));
+    }
+
+    //MOSTRAR VISTA EDITAR PERFIL
+    public function editProfileView(Request $request){
+        $user = $request->user();
+        return view('profile.edit', compact('user'));
+    }
+
+    //ACTUALIZAR UN USUARIO ESPECIFICO
+    public function updateProfile(Request $request)
     {
-        $users = User::all();
-        if($users->isEmpty()){
-            return response()->json(['message' => 'No hay usuarios registrados'], 404);
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|confirmed|min:8',
+        ], [
+            'name.max' => 'El nombre no debe exceder los 255 caracteres',
+            'email.email' => 'El correo no es válido',
+            'email.unique' => 'Este correo ya está registrado',
+            'email.max' => 'El correo no debe exceder los 255 caracteres',
+            'password.confirmed' => 'Las contraseñas no coinciden',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres',
+        ]);
+
+        if ($request->filled('password')) {
+            $validated['password'] = Hash::make($request->password);
+        } else {
+            unset($validated['password']);
         }
-        return response()->json($users, 200);
+
+        $user->update($validated);
+
+        return redirect()
+            ->route('profile.show')
+            ->with('success', 'Perfil actualizado correctamente');
     }
 
-    public function profile($id)
+    //USUARIOS
+    //MOSTRAR LISTA DE USUARIOS
+    public function indexView()
     {
-        $user = User::findOrFail($id);
-        return response()->json($user);
+        $users = User::select('id', 'name', 'email', 'role', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('users.index', compact('users'));
     }
 
-    public function create(){
+    //VER UN USUARIO
+    public function showView(User $user)
+    {
+        return view('users.show', compact('user'));
+    }
+
+
+    //MOSTRAR VISTA CREAR USUARIO
+    public function createView(){
         return view('users.create');
     }
 
-    public function store(Request $request)
+    //MOSTRAR VISTA EDITAR USUARIO
+    public function editView(User $user){
+        return view('users.edit', compact('user'));
+    }
+
+    //ACCIONES
+
+    //CREAR NUEVO USUARIO
+    public function storeUser(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'role' => 'required|in:user,admin'
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:user,admin',
+        ], [
+            'name.required' => 'El nombre es obligatorio',
+
+            'email.required' => 'El correo es obligatorio',
+            'email.email' => 'El correo no es válido',
+            'email.unique' => 'Este correo ya está registrado',
+
+            'role.required' => 'El rol es obligatorio',
+            'role.in' => 'El rol debe ser user o admin',
+
+            'password.required' => 'La contraseña es obligatoria',
+            'password.confirmed' => 'Las contraseñas no coinciden',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres',
         ]);
 
-        $user = User::create([
+        User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
 
-        return response()->json($user, 201);
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'Usuario creado correctamente');
     }
 
-    public function edit(Request $request, $id){
-        return view('users.edit');
-    }
-
-    public function update(Request $request, $id)
+    //ACTUALIZAR UN USUARIO ESPECIFICO
+    public function updateUser(Request $request, User $user)
     {
-        $user = User::findOrFail($id);
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'role' => 'sometimes|in:user,admin',
+        ], [
+            'name.max' => 'El nombre no debe exceder los 255 caracteres',
 
-        if (!$user) {
-            return response()->json(['error' => 'Usuario no encontrado'], 404);
-        }
+            'email.email' => 'El correo no es válido',
+            'email.unique' => 'Este correo ya está registrado',
+            'email.max' => 'El correo no debe exceder los 255 caracteres',
 
-        $request->validate([
-            'name' => 'sometimes|string',
-            'email' => 'sometimes|email|unique:users,email,' . $id,
-            'role' => 'sometimes|in:user,admin'
+            'role.in' => 'El rol debe ser user o admin',
         ]);
 
-        $user->update($request->all());
-        return response()->json($user);
+        if ($request->has('role') && $user->id === $request->user()->id) {
+            return back()->withErrors('No puedes cambiar tu propio rol');
+        }
+
+        if ($request->filled('password')) {
+            $validated['password'] = Hash::make($request->password);
+        }
+
+        $user->update($validated);
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'Usuario actualizado correctamente');
     }
 
-    public function destroy($id)
+    //ELIMINAR UN USUARIO ESPECIFICO
+    public function destroyUser(Request $request, User $user)
     {
-        User::destroy($id);
-        if (!User::find($id)) {
-            return response()->json(['error' => 'Usuario no encontrado'], 404);
+
+        if ($user->id === $request->user()->id) {
+            return redirect()
+                ->back()
+                ->withErrors('No puedes eliminar tu propio usuario');
         }
-        return response()->json(['message' => 'Usuario eliminado'], 200 );
+
+        $user->delete();
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'Usuario eliminado correctamente');
     }
 }

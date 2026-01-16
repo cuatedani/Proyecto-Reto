@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\IsAdmin;
-use App\Http\Middleware\IsUserAuth;
 
 //VISTAS PUBLICAS
 //Vista Pagina Welcome
@@ -12,44 +11,71 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-Route::middleware('guest')->group(function (){
-    //Vista del Login
-    Route::get('/login', [AuthController::class, 'loginView'])->name('login');
 
-    //Vista del Registro
-    Route::get('/register', [AuthController::class, 'registerView'])->name('register');
+Route::middleware('guest')->group(function () {
+    //MUESTRA EL FORMULARIO DE LOGIN
+    Route::get('/login', [AuthController::class, 'loginView'])
+        ->name('login');
+    //PETICION PARA HACER LOGIN
+    Route::post('/login', [AuthController::class, 'loginWeb'])
+        ->name('login.action');
 
-    //Vista de Recuperar Contraseña
-    Route::get('/recovery', [AuthController::class, 'recoveryView'])->name('recovery');
+    //FORMULARIO DE REGISTRO
+    Route::get('/register', [AuthController::class, 'registerView'])
+        ->name('register');
+    //PETICION PARA REGISTRAR USUARIO
+    Route::post('/register', [AuthController::class, 'registerWeb'])
+        ->name('register.action');
+
+    //FORMULARIO DE RECUPERACION DE CLAVE
+    Route::get('/recovery', [AuthController::class, 'recoveryView'])
+        ->name('recovery');
+    //PETCION PARA RECUPERAR CLAVE
+    Route::post('/recovery', [AuthController::class, 'recoveryWeb'])
+        ->name('recovery.action');
 });
 
 //VISTAS DE USUARIO
-Route::middleware([IsUserAuth::class])->group(function() {
-    //Vista del panel
+Route::middleware(['auth'])->group(function() {
+    //VISTA DEL PANEL
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::prefix('perfil')->name('perfil.')->group(function() {
-        //Vista de tu perfil
-        Route::get('/', [UserController::class, 'profileView'])->name('ver');
+    //PETICION DE LOGOUT
+    Route::post('/logout', [AuthController::class, 'logoutWeb'])->name('logout');
 
-        //Vista de editar perfil
-        Route::get('/editar', [UserController::class, 'editProfileView'])->name('editar');
+    Route::prefix('profile')->name('profile.')->group(function() {
+        //VISTA DE TU PERFIL
+        Route::get('/', [UserController::class, 'profileView'])->name('show');
+
+        //VISTA DE EDITAR PERFIL
+        Route::get('/edit', [UserController::class, 'editProfileView'])->name('edit');
+        //VISTA DE EDITAR PERFIL
+        Route::put('/', [UserController::class, 'updateProfile'])->name('update');
     });
 });
 
 //VISTAS DE ADMIN
-Route::middleware([IsAdmin::class])->group(function() {
+Route::middleware(['auth', IsAdmin::class])->group(function() {
 
-    Route::prefix('usuarios')->name('usuarios.')->group(function() {
-        //Lista de Usuarios
-        Route::get('/', [UserController::class, 'indexView'])->name('listar');
+    Route::prefix('users')->name('users.')->group(function() {
+        //LISTA DE USUARIOS
+        Route::get('/', [UserController::class, 'indexView'])->name('index');
+        //MOSTRAR UN USUARIO
+        Route::get('/{user}', [UserController::class, 'showView'])->name('show');
 
-        //Formulario de Creacion de Usuario
-        Route::get('/agregar', [UserController::class, 'createView'])->name('agregar');
+        //FORMULARIO DE CREACIÓN DE USUARIOS
+        Route::get('/create', [UserController::class, 'createView'])->name('create');
+        //PETICIÓN PARA GUARDAR USUARIO
+        Route::post('/', [UserController::class, 'storeUser'])->name('store');
 
-        //Formulario de Edicion de Usuario
-        Route::get('/{id}/editar', [UserController::class, 'editView'])->name('editar');
+        //FORMULARIO DE EDICION DE USUARIO
+        Route::get('/{user}/edit', [UserController::class, 'editView'])->name('edit');
+        //PETICIÓN PARA EDITAR USUARIO
+        Route::put('/{user}', [UserController::class, 'updateUser'])->name('update');
+
+        //PETICIÓN PARA ELIMINAR USUARIO
+        Route::delete('/{user}', [UserController::class, 'destroyUser'])->name('destroy');
     });
 });

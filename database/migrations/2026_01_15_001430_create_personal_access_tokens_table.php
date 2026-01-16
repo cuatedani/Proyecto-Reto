@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->morphs('tokenable');
             $table->text('name');
-            $table->text('role', 20)->default('user');
+            $table->string('role', 20)->default('user');
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
             $table->timestamp('last_used_at')->nullable();
