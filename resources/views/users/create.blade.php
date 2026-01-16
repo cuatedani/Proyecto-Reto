@@ -7,7 +7,63 @@
     x-data="{
         showPassword: false,
         showPasswordConfirm: false,
-        loading: false
+        loading: false,
+        name: '',
+        email: '',
+        role: '',
+        password: '',
+        passwordConfirm: '',
+        nameError: '',
+        roleError: '',
+        passwordError: '',
+        passwordConfirmError: '',
+
+        validateForm() {
+            // Limpiar errores
+            this.nameError = ''
+            this.emailError = ''
+            this.roleError = ''
+            this.passwordError = ''
+            this.passwordConfirmError = ''
+
+            // Validar nombre
+            if (!this.name.trim()) {
+                this.nameError = '* El nombre es obligatorio.'
+            } else if (this.name.length > 255) {
+                this.nameError = '* El nombre debe tener menos de 255 caracteres.'
+            }
+
+            // Validar email
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            if (!this.email.trim()) {
+                this.emailError = '* El correo es obligatorio.'
+            } else if (this.email.length > 255) {
+                this.emailError = '* El correo debe tener menos de 255 caracteres.'
+            } else if (!emailPattern.test(this.email)) {
+                this.emailError = '* El correo no tiene un formato válido.'
+            }
+
+            // Validar rol
+            if (!this.role.trim()) {
+                this.roleError = '* Necesita seleccionar un rol.'
+            }
+
+            // Validar contraseña
+            if (!this.password.trim()) {
+                this.passwordError = '* La contraseña es olbigatoria.'
+            }
+
+            if (this.password.length < 8) {
+                this.passwordError = '* La contraseña debe tener al menos 8 caracteres.'
+            }
+
+            if (this.password !== this.passwordConfirm) {
+                this.passwordConfirmError = '* Las contraseñas no coinciden.'
+            }
+
+            // Retornar si todo es válido
+            return !this.nameError && !this.emailError && !this.roleError && !this.passwordError && !this.passwordConfirmError
+        }
     }"
     class="max-w-md mx-auto"
 >
@@ -54,6 +110,7 @@
                 <input
                     type="text"
                     name="name"
+                    x-model="name"
                     value="{{ old('name') }}"
                     placeholder="Nombre del usuario"
                     required
@@ -69,6 +126,7 @@
                     </svg>
                 </span>
             </div>
+            <p x-text="nameError" class="text-sm text-red-600"></p>
         </div>
 
         {{-- Email --}}
@@ -80,6 +138,7 @@
                 <input
                     type="email"
                     name="email"
+                    x-model="email"
                     value="{{ old('email') }}"
                     placeholder="correo@ejemplo.com"
                     required
@@ -96,6 +155,7 @@
                     </svg>
                 </span>
             </div>
+            <p x-text="emailError" class="text-sm text-red-600"></p>
         </div>
 
         {{-- Rol --}}
@@ -103,9 +163,10 @@
             <label class="block text-sm font-medium text-gray-700 text-left">
                 Rol
             </label>
-            <div class="relative mt-1">
+            <div class="relative mt-1 me-1">
                 <select
                     name="role"
+                    x-model="role"
                     required
                     class="block w-full h-10 pl-3 pr-10 text-sm text-gray-700
                            border border-gray-300 rounded shadow-sm
@@ -116,6 +177,7 @@
                     <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>Usuario</option>
                 </select>
             </div>
+            <p x-text="roleError" class="text-sm text-red-600"></p>
         </div>
 
         {{-- Contraseña --}}
@@ -127,39 +189,76 @@
                 <input
                     :type="showPassword ? 'text' : 'password'"
                     name="password"
+                    x-model="password"
                     placeholder="********"
                     required
                     class="block w-full h-10 pl-10 pr-10 text-sm text-gray-700
                            border border-gray-300 rounded shadow-sm
                            focus:outline-none focus:border-sky-400"
                 >
-                <span class="absolute inset-y-0 left-0 flex items-center ml-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                         fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 13h14v8H5z"/>
-                        <path d="M9 13V9a3 3 0 1 1 6 0v4"/>
+                <span class="absolute inset-y-0 left-0 flex items-center justify-center ml-2">
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#000000"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    >
+                    <path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z" />
+                    <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
+                    <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
                     </svg>
                 </span>
 
-                <button type="button" @click="showPassword = !showPassword"
-                        class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                    <svg x-show="!showPassword" xmlns="http://www.w3.org/2000/svg"
-                         width="22" height="22" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
-                        <path d="M21 12c-2.4 4-5.4 6-9 6s-6.6-2-9-6c2.4-4 5.4-6 9-6s6.6 2 9 6"/>
+                <button
+                    type="button"
+                    @click="showPassword = !showPassword"
+                    class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+                >
+                    {{-- Ojo abierto --}}
+                    <svg
+                        x-show="!showPassword"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                        <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                     </svg>
-                    <svg x-show="showPassword" x-cloak xmlns="http://www.w3.org/2000/svg"
-                         width="22" height="22" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 9c-2.4 2.667-5.4 4-9 4s-6.6-1.333-9-4"/>
-                        <path d="M3 15l2.5-3.8"/>
-                        <path d="M21 14.976l-2.492-3.776"/>
-                        <path d="M9 17l.5-4"/>
-                        <path d="M15 17l-.5-4"/>
+
+                    {{-- Ojo cerrado --}}
+                    <svg
+                        x-show="showPassword"
+                        x-cloak
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M21 9c-2.4 2.667 -5.4 4 -9 4c-3.6 0 -6.6 -1.333 -9 -4" />
+                        <path d="M3 15l2.5 -3.8" />
+                        <path d="M21 14.976l-2.492 -3.776" />
+                        <path d="M9 17l.5 -4" />
+                        <path d="M15 17l-.5 -4" />
                     </svg>
                 </button>
             </div>
+            <p x-text="passwordError" class="text-sm text-red-600"></p>
         </div>
 
         {{-- Confirmar contraseña --}}
@@ -171,36 +270,81 @@
                 <input
                     :type="showPasswordConfirm ? 'text' : 'password'"
                     name="password_confirmation"
+                    x-model="passwordConfirm"
                     placeholder="********"
                     required
                     class="block w-full h-10 pl-10 pr-10 text-sm text-gray-700
                            border border-gray-300 rounded shadow-sm
                            focus:outline-none focus:border-sky-400"
                 >
-                <button type="button" @click="showPasswordConfirm = !showPasswordConfirm"
-                        class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                    <svg x-show="!showPasswordConfirm" xmlns="http://www.w3.org/2000/svg"
-                         width="22" height="22" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
-                        <path d="M21 12c-2.4 4-5.4 6-9 6s-6.6-2-9-6c2.4-4 5.4-6 9-6s6.6 2 9 6"/>
+                <span class="absolute inset-y-0 left-0 flex items-center justify-center ml-2">
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#000000"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    >
+                    <path d="M11.5 21h-4.5a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v.5" />
+                    <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
+                    <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
+                    <path d="M15 19l2 2l4 -4" />
                     </svg>
-                    <svg x-show="showPasswordConfirm" x-cloak xmlns="http://www.w3.org/2000/svg"
-                         width="22" height="22" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 9c-2.4 2.667-5.4 4-9 4s-6.6-1.333-9-4"/>
-                        <path d="M3 15l2.5-3.8"/>
-                        <path d="M21 14.976l-2.492-3.776"/>
-                        <path d="M9 17l.5-4"/>
-                        <path d="M15 17l-.5-4"/>
+                </span>
+
+                <button
+                    type="button"
+                    @click="showPasswordConfirm = !showPasswordConfirm"
+                    class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+                >
+                    <svg
+                        x-show="!showPasswordConfirm"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                        <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                    </svg>
+
+                    <svg
+                        x-show="showPasswordConfirm"
+                        x-cloak
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M21 9c-2.4 2.667 -5.4 4 -9 4c-3.6 0 -6.6 -1.333 -9 -4" />
+                        <path d="M3 15l2.5 -3.8" />
+                        <path d="M21 14.976l-2.492 -3.776" />
+                        <path d="M9 17l.5 -4" />
+                        <path d="M15 17l-.5 -4" />
                     </svg>
                 </button>
             </div>
+            <p x-text="passwordConfirmError" class="text-sm text-red-600"></p>
         </div>
 
         {{-- Botón --}}
         <button
             type="submit"
+            @click.prevent="if(validateForm()){ $el.form.submit() }"
             class="relative w-full rounded-md bg-sky-700 py-2 px-4 text-sm font-medium text-white
                    hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500
                    focus:ring-offset-2 disabled:opacity-70"
@@ -209,8 +353,20 @@
             <span x-show="!loading">Crear usuario</span>
 
             <span x-show="loading" class="flex items-center justify-center gap-2">
-                <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none"/>
+                <svg class="mr-3 size-5 animate-spin ..." viewBox="0 0 24 24">
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    >
+                    <path d="M12 3a9 9 0 1 0 9 9" />
+                    </svg>
                 </svg>
                 Creando...
             </span>
