@@ -24,11 +24,10 @@
                         Panel
                     </a>
 
-                    {{-- Link Usuarios (solo admin) --}}
-                    @if(auth()->user()->role === 'admin')
+                    @if(auth()->user()->isAdmin())
                         <a
-                            href="{{ route('usuarios.listar') }}"
-                            class="{{ Route::is('usuarios.*') ? 'bg-sky-950 bg-opacity-50' : 'hover:bg-sky-800' }} rounded-md py-2 px-3 text-sm font-medium text-white transition-colors"
+                            href="{{ route('users.index') }}"
+                            class="{{ Route::is('users.*') ? 'bg-sky-950 bg-opacity-50' : 'hover:bg-sky-800' }} rounded-md py-2 px-3 text-sm font-medium text-white transition-colors"
                         >
                             Usuarios
                         </a>
@@ -78,7 +77,7 @@
                     >
                         <div class="p-2">
                             <a
-                                href="{{ route('perfil.ver') }}"
+                                href="{{ route('profile.show') }}"
                                 class="flex items-center gap-2 rounded-md py-2 px-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                 @click="openProfile = false"
                             >
@@ -144,10 +143,10 @@
                 Panel
             </a>
 
-            @if(auth()->user()->role === 'admin')
+            @if(auth()->user()->isAdmin())
                 <a
-                    href="{{ route('usuarios.listar') }}"
-                    class="{{ Route::is('usuarios.*') ? 'bg-sky-900' : 'hover:bg-sky-900' }} block rounded-md py-2 px-3 text-base font-medium text-white transition-colors"
+                    href="{{ route('users.index') }}"
+                    class="{{ Route::is('users.*') ? 'bg-sky-900' : 'hover:bg-sky-900' }} block rounded-md py-2 px-3 text-base font-medium text-white transition-colors"
                 >
                     Usuarios
                 </a>
@@ -169,7 +168,7 @@
             </div>
             <div class="mt-3 space-y-1 px-4">
                 <a
-                    href="{{ route('perfil.ver') }}"
+                    href="{{ route('profile.show') }}"
                     class="block rounded-md py-2 px-3 text-base font-medium text-sky-200 hover:bg-sky-900 hover:text-white transition-colors"
                 >
                     Mi Perfil
