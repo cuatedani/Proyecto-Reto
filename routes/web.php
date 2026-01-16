@@ -59,16 +59,19 @@ Route::middleware(['auth', IsAdmin::class])->group(function() {
     Route::prefix('users')->name('users.')->group(function() {
         //LISTA DE USUARIOS
         Route::get('/', [UserController::class, 'indexView'])->name('index');
-        //MOSTRAR UN USUARIO
-        Route::get('/{user}', [UserController::class, 'showView'])->name('show');
 
         //FORMULARIO DE CREACIÓN DE USUARIOS
         Route::get('/create', [UserController::class, 'createView'])->name('create');
+
+        //MOSTRAR UN USUARIO
+        Route::get('/{user}', [UserController::class, 'showView'])->name('show');
+
         //PETICIÓN PARA GUARDAR USUARIO
         Route::post('/', [UserController::class, 'storeUser'])->name('store');
 
         //FORMULARIO DE EDICION DE USUARIO
         Route::get('/{user}/edit', [UserController::class, 'editView'])->name('edit');
+
         //PETICIÓN PARA EDITAR USUARIO
         Route::put('/{user}', [UserController::class, 'updateUser'])->name('update');
 
