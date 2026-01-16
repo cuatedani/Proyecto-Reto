@@ -7,7 +7,52 @@
     x-data="{
         showPassword: false,
         showPasswordConfirm: false,
-        loading: false
+        loading: false,
+        name: '{{ old('name') }}',
+        email: '{{ old('email') }}',
+        password: '',
+        passwordConfirm: '',
+        nameError: '',
+        emailError: '',
+        passwordError: '',
+        passwordConfirmError: '',
+
+        validateForm() {
+            // Limpiar errores
+            this.nameError = ''
+            this.emailError = ''
+            this.passwordError = ''
+            this.passwordConfirmError = ''
+
+            // Validar nombre
+            if (!this.name.trim()) {
+                this.nameError = '* El nombre es obligatorio.'
+            } else if (this.name.length > 255) {
+                this.nameError = '* El nombre debe tener menos de 255 caracteres.'
+            }
+
+            // Validar email
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            if (!this.email.trim()) {
+                this.emailError = '* El correo es obligatorio.'
+            } else if (this.email.length > 255) {
+                this.emailError = '* El correo debe tener menos de 255 caracteres.'
+            } else if (!emailPattern.test(this.email)) {
+                this.emailError = '* El correo no tiene un formato válido.'
+            }
+
+            // Validar contraseña
+            if (this.password.length < 8) {
+                this.passwordError = '* La contraseña debe tener al menos 8 caracteres.'
+            }
+
+            if (this.password !== this.passwordConfirm) {
+                this.passwordConfirmError = '* Las contraseñas no coinciden.'
+            }
+
+            // Retornar si todo es válido
+            return !this.nameError && !this.emailError && !this.passwordError && !this.passwordConfirmError
+        }
     }"
     class="max-w-md mx-auto"
 >
@@ -42,6 +87,7 @@
             <div class="relative mt-1">
                 <input
                     type="text"
+                    x-model="name"
                     name="name"
                     value="{{ old('name') }}"
                     placeholder="Tu nombre"
@@ -67,6 +113,7 @@
                     </svg>
                 </span>
             </div>
+            <p x-text="nameError" class="text-sm text-red-600"></p>
         </div>
 
         {{-- Correo --}}
@@ -78,6 +125,7 @@
                 <input
                     type="email"
                     name="email"
+                    x-model="email"
                     value="{{ old('email') }}"
                     placeholder="youremail@mail.com"
                     required
@@ -102,6 +150,7 @@
                     </svg>
                 </span>
             </div>
+            <p x-text="emailError" class="text-sm text-red-600"></p>
         </div>
 
         {{-- Contraseña --}}
@@ -114,6 +163,8 @@
                     :type="showPassword ? 'text' : 'password'"
                     name="password"
                     placeholder="********"
+                    minlength="8"
+                    x-model="password"
                     required
                     class="block w-full h-10 pl-10 pr-10 text-sm text-gray-700
                            border border-gray-300 rounded shadow-sm
@@ -182,6 +233,7 @@
                     </svg>
                 </button>
             </div>
+            <p x-text="passwordError" class="text-sm text-red-600"></p>
         </div>
 
         {{-- Confirmar contraseña --}}
@@ -194,6 +246,8 @@
                     :type="showPasswordConfirm ? 'text' : 'password'"
                     name="password_confirmation"
                     placeholder="********"
+                    x-model="passwordConfirm"
+                    minlength="8"
                     required
                     class="block w-full h-10 pl-10 pr-10 text-sm text-gray-700
                            border border-gray-300 rounded shadow-sm
@@ -261,11 +315,13 @@
                     </svg>
                 </button>
             </div>
+            <p x-text="passwordConfirmError" class="text-sm text-red-600"></p>
         </div>
 
         {{-- Botón --}}
         <button
             type="submit"
+            @click.prevent="if(validateForm()){ $el.form.submit() }"
             class="relative w-full rounded-md bg-sky-700 py-2 px-4 text-sm font-medium text-white
                    hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500
                    focus:ring-offset-2 disabled:opacity-70"
@@ -274,8 +330,20 @@
             <span x-show="!loading">Crear cuenta</span>
 
             <span x-show="loading" class="flex items-center justify-center gap-2">
-                <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none"/>
+                <svg class="mr-3 size-5 animate-spin ..." viewBox="0 0 24 24">
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    >
+                    <path d="M12 3a9 9 0 1 0 9 9" />
+                    </svg>
                 </svg>
                 Creando...
             </span>

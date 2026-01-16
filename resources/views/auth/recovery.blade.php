@@ -5,7 +5,26 @@
 @section('content')
 <div
     x-data="{
-        loading: false
+        loading: false,
+        email: '{{ old('email') }}',
+        emailError: '',
+        validateForm() {
+            // Limpiar errores
+            this.emailError = ''
+
+            // Validar email
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            if (!this.email.trim()) {
+                this.emailError = '* El correo es obligatorio.'
+            } else if (this.email.length > 255) {
+                this.emailError = '* El correo debe tener menos de 255 caracteres.'
+            }else if (!emailPattern.test(this.email)) {
+                this.emailError = '* El correo no tiene un formato válido.'
+            }
+
+            // Retornar si todo es válido
+            return !this.emailError
+        }
     }"
     class="max-w-md mx-auto"
 >
@@ -53,6 +72,7 @@
                 <input
                     type="email"
                     name="email"
+                    x-model="email"
                     value="{{ old('email') }}"
                     placeholder="youremail@mail.com"
                     required
@@ -78,11 +98,13 @@
                     </svg>
                 </span>
             </div>
+            <p x-text="emailError" class="text-sm text-red-600"></p>
         </div>
 
         {{-- Botón --}}
         <button
             type="submit"
+            @click.prevent="if(validateForm()){ $el.form.submit() }"
             class="relative w-full rounded-md bg-sky-700 py-2 px-4 text-sm font-medium text-white
                    hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500
                    focus:ring-offset-2 disabled:opacity-70"
@@ -93,8 +115,20 @@
             </span>
 
             <span x-show="loading" class="flex items-center justify-center gap-2">
-                <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none"/>
+                <svg class="mr-3 size-5 animate-spin ..." viewBox="0 0 24 24">
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    >
+                    <path d="M12 3a9 9 0 1 0 9 9" />
+                    </svg>
                 </svg>
                 Enviando...
             </span>

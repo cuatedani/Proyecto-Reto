@@ -18,13 +18,12 @@ class AuthController extends Controller
     public function loginWeb(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email|max:255',
-            'password' => 'required|string|min:8',
+            'email' => 'required|string|email',
+            'password' => 'required|string',
         ], [
             'email.required' => 'El correo es obligatorio',
             'email.email' => 'El correo no es válido',
             'password.required' => 'La contraseña es obligatoria',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres',
         ]);
 
         $credentials = $request->only('email', 'password');
