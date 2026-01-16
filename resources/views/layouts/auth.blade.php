@@ -45,7 +45,7 @@
             {{-- Header --}}
             <header class="relative py-10">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
+                </div>
             </header>
         </div>
 
@@ -53,11 +53,9 @@
         <main class="relative -mt-32">
             <div class="mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8 lg:pb-16">
                 <div class="overflow-hidden rounded-lg bg-white shadow">
-                    <div class="divide-y divide-gray-200 lg:grid lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
-                        <div class="px-4 sm:p-6 lg:pb-8 lg:col-span-12">
-                            <div class="max-w-4xl mx-auto text-center">
-                                @yield('content')
-                            </div>
+                    <div class="py-6 px-4 sm:p-6 lg:pb-8 lg:col-span-12">
+                        <div class="max-w-4xl mx-auto text-center">
+                            @yield('content')
                         </div>
                     </div>
                 </div>
