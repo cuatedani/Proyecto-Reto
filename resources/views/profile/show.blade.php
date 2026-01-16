@@ -167,7 +167,7 @@
         {{-- Nueva contraseña --}}
         <div>
             <label class="block text-sm font-medium text-gray-700 text-left">
-                Nueva contraseña (opcional)
+                Nueva contraseña <span class="text-gray-400 text-xs">(opcional)</span>
             </label>
             <div class="relative mt-1">
                 <input
