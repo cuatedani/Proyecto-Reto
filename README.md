@@ -166,14 +166,14 @@ La aplicación estará disponible en: **http://localhost:8000**
 
 ### Error: "Error: could not find driver SQLSTATE[HY000] [2002] No such file or directory"
 
-# INCORRECTO - Extensión deshabilitada (comentada)
+#### INCORRECTO - Extensión deshabilitada (comentada)
 ```bash
 ;extension=pdo_mysql
 ;extension=mbstring
 ;extension=fileinfo
 ```
 
-# CORRECTO - Extensión habilitada
+#### CORRECTO - Extensión habilitada
 ```bash
 extension=pdo_mysql
 extension=mbstring
