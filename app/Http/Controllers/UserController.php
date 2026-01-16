@@ -17,12 +17,6 @@ class UserController extends Controller
         return view('profile.show', compact('user'));
     }
 
-    //MOSTRAR VISTA EDITAR PERFIL
-    public function editProfileView(Request $request){
-        $user = $request->user();
-        return view('profile.edit', compact('user'));
-    }
-
     //ACTUALIZAR UN USUARIO ESPECIFICO
     public function updateProfile(Request $request)
     {
