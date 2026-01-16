@@ -76,13 +76,13 @@
             style="display: none;"
         >
             <a href="{{ route('profile.show') }}"
-               class="block px-4 py-2 text-sm hover:bg-gray-100">
+               class="block px-4 py-2 text-sm hover:bg-gray-100 hover:rounded-md">
                 Mi perfil
             </a>
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
+                <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 hover:rounded-md">
                     Cerrar sesión
                 </button>
             </form>
