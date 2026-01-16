@@ -48,10 +48,7 @@ Route::middleware(['auth'])->group(function() {
     Route::prefix('profile')->name('profile.')->group(function() {
         //VISTA DE TU PERFIL
         Route::get('/', [UserController::class, 'profileView'])->name('show');
-
-        //VISTA DE EDITAR PERFIL
-        Route::get('/edit', [UserController::class, 'editProfileView'])->name('edit');
-        //VISTA DE EDITAR PERFIL
+        //PETICIÓN PARA EDITAR PERFIL
         Route::put('/', [UserController::class, 'updateProfile'])->name('update');
     });
 });
