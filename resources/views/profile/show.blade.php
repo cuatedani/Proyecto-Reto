@@ -71,6 +71,17 @@
         Mi perfil
     </h2>
 
+    {{-- Botón regresar --}}
+    <div class="mb-4 text-left">
+        <a href="{{ route('dashboard') }}"
+           class="inline-flex items-center gap-1 text-sky-700 hover:text-sky-900 text-sm font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Regresar
+        </a>
+    </div>
+
     {{-- Errores --}}
     @if ($errors->any())
         <div class="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-700">
