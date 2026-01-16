@@ -48,6 +48,13 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
+    // VALIDACION DE ADMIN
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
